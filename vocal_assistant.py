@@ -18,6 +18,11 @@ class VocalAssistant():
         except sr.RequestError as e:
             print("Could not request results from Whisper API")
         return audio_str
+    
+    def activation(self) -> bool:
+        audio_str = self.listen()
+        print(audio_str)
+        return audio_str == "Salut Lira"
 
     def think(self, prompt: str) -> str:
         response = openai.ChatCompletion.create(
