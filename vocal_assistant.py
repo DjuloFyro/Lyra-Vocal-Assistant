@@ -8,6 +8,7 @@ import pyttsx3
 class VocalAssistant():
     def __init__(self):
         self.OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+        self.activated = False
 
     def listen(self) -> str:
         r = sr.Recognizer()
@@ -17,13 +18,14 @@ class VocalAssistant():
             audio_str = r.recognize_whisper_api(audio, api_key=self.OPENAI_API_KEY)
         except sr.RequestError as e:
             print("Could not request results from Whisper API")
+
+        print(audio_str)
+        if "salut lyra" in audio_str.lower() or "salut lyra" in audio_str.lower():
+            print("Lyra is activated")
+            self.activated = True
+
         return audio_str
     
-    def activation(self) -> bool:
-        audio_str = self.listen()
-        print(audio_str)
-        return audio_str == "Salut Lira"
-
     def think(self, prompt: str) -> str:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",

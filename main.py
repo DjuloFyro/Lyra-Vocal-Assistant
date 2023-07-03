@@ -6,12 +6,11 @@ def main():
 
     
     while True:
-        if vocal_assistant.activation():
-            #print("Lira is activated...")
-            audio_str = vocal_assistant.listen()
+        audio_str = vocal_assistant.listen()
+        if vocal_assistant.activated:
             response = vocal_assistant.think(audio_str)
-            #(f"User: {audio_str}")
-            #print(f"Vocal Assistant: {response}")
+            print(f"User: {audio_str}")
+            print(f"Vocal Assistant: {response}")
             vocal_assistant.speak(response)
 
 
