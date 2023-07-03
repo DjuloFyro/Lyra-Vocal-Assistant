@@ -8,6 +8,8 @@ def main():
     print(f"User: {audio_str}")
     print(f"Vocal Assistant: {response}")
 
+    vocal_assistant.speak(response)
+
 
 if __name__ == "__main__":
     main()

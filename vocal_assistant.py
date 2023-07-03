@@ -1,6 +1,8 @@
 import openai
 import speech_recognition as sr
 import os
+import pyttsx3
+
 
 
 class VocalAssistant():
@@ -25,5 +27,7 @@ class VocalAssistant():
         )
         return dict(response.choices[0])["message"]["content"]
 
-    def speak(self) -> None:
-        pass
+    def speak(self, audio: str) -> None:
+        engine = pyttsx3.init()
+        engine.say(audio)
+        engine.runAndWait()
