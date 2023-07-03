@@ -55,13 +55,6 @@ The goal of this project is to create a voice assistant with the power of LLMs p
 <!-- GETTING STARTED -->
 ## Getting Started
 
-### Prerequisites
-
-You need `PyAudio` installed already.
-```sh
-pip install pyaudio
-```
-
 ### Installation
 
 1. Clone the repo
