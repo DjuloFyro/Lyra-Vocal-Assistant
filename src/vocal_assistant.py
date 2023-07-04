@@ -13,7 +13,6 @@ GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 class VocalAssistant():
     def __init__(self):
         self.OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-        self.activated = False
         self.template = """Assistant is a powerful tool that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether you need help with a specific question or just want to have a conversation about a particular topic, Assistant is here to assist.
         
         Assistant is aware that human input is being transcribed from audio and as such there may be some errors in the transcription. It will attempt to account for some words being swapped with similar-sounding words or phrases. Assistant will also keep responses concise, because human attention spans are more limited over the audio channel since it takes time to listen to a response.
@@ -26,18 +25,17 @@ class VocalAssistant():
     def listen(self) -> str:
         r = sr.Recognizer()
         with sr.Microphone() as source:
-            audio = r.listen(source)
+            r.adjust_for_ambient_noise(source, duration=5)
+            print("TING TING")
+            audio = r.listen(source, timeout=5, phrase_time_limit=30)
         try:
-            audio_str = r.recognize_whisper_api(audio, api_key=self.OPENAI_API_KEY)
+            return r.recognize_google(audio)
+        except sr.UnknownValueError:
+            print("Could not understand audio")
         except sr.RequestError as e:
             print("Could not request results from Whisper API")
 
-        print(audio_str)
-        if "salut lyra" in audio_str.lower() or "salut lyra" in audio_str.lower():
-            print("Lyra is activated")
-            self.activated = True
-
-        return audio_str
+        return ""
     
     def think(self, input_text: str) -> str:
         prompt = PromptTemplate(input_variables=['input', 'internet_search'], template=self.template)
