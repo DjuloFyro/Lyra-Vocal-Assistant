@@ -4,8 +4,21 @@ from langchain import OpenAI, ConversationChain, LLMChain, PromptTemplate
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.tools import Tool
 from langchain.utilities import GoogleSearchAPIWrapper
+from playsound import playsound
+import site
+from TTS.utils.manage import ModelManager
+from TTS.utils.synthesizer import Synthesizer
+import site
 
-import pyttsx3
+# Get coqui TTS
+location = site.getsitepackages()[0]
+
+path = location+"/TTS/.models.json"
+model_manager = ModelManager(path)
+
+model_path, config_path, model_item = model_manager.download_model("tts_models/en/ljspeech/tacotron2-DDC")
+
+voc_path, voc_config_path, _ = model_manager.download_model(model_item["default_vocoder"])
 
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
@@ -58,6 +71,12 @@ class VocalAssistant():
         return response
     
     def speak(self, audio: str) -> None:
-        engine = pyttsx3.init()
-        engine.say(audio)
-        engine.runAndWait()
+        syn = Synthesizer(
+            tts_checkpoint=model_path,
+            tts_config_path=config_path,
+            vocoder_checkpoint=voc_path,
+            vocoder_config=voc_config_path
+        )
+        outputs = syn.tts(audio)
+        syn.save_wav(outputs, "audio-1.wav")
+        playsound('audio-1.wav')

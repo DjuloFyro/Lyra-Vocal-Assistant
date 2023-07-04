@@ -1,7 +1,6 @@
 import vocal_assistant as va
 import speech_recognition as sr
 
-
 def chatting(vocal_assistant: va.VocalAssistant)-> None:
     audio_str = vocal_assistant.listen()
     if audio_str != "":
@@ -31,12 +30,10 @@ def listen_for_keyword(keyword:str, vocal_assistant: va.VocalAssistant) -> None:
 
 
 
-
 def main():
     keyword = "ok google"
     vocal_assistant = va.VocalAssistant()
-
-
+    
     while True:
         listen_for_keyword(keyword=keyword, vocal_assistant=vocal_assistant)
 
