@@ -40,6 +40,7 @@ class VocalAssistant():
         with sr.Microphone() as source:
             r.adjust_for_ambient_noise(source, duration=5)
             print("TING TING")
+            playsound('tell_me.wav')
             audio = r.listen(source, timeout=5, phrase_time_limit=30)
         try:
             return r.recognize_google(audio)
