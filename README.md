@@ -58,25 +58,32 @@ The goal of this project is to create a voice assistant with the power of LLMs p
 ### Installation
 
 1. Clone the repo
-   ```sh
-   git clone https://github.com/DjuloFyro/Lyra-Vocal-Assistant.git
-   ```
+```sh
+git clone https://github.com/DjuloFyro/Lyra-Vocal-Assistant.git
+```
 2. Get a API Key at [https://openai.com/](https://openai.com/)
 3. Export the Key as an environment variable
-   ```sh
-   export OPENAI_API_KEY='yourkey'
-   ```
-4. Install all packages
-   ```sh
-   pip install -r requirements.txt
-   ```
+```sh
+export OPENAI_API_KEY='yourkey'
+```
+4. Export also Google keys
+  ```sh
+export GOOGLE_CSE_ID="yourkey"
+export GOOGLE_API_KEY="yourkey"
+```
+5. Install all packages
+```sh
+pip install -r requirements.txt
+```
 
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
--- TODO --
-
+```sh
+python src/main.py
+```
+Then you can talk with the vocal assistant
 
 
 <!-- LICENSE -->
