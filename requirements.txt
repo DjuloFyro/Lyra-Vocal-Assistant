@@ -3,5 +3,5 @@ langchain
 pyaudio
 SpeechRecognition
 google-api-python-client
-tts
+
 playsound

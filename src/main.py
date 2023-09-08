@@ -54,5 +54,10 @@ def main():
     while True:
         listen_for_keyword(keyword=keyword, vocal_assistant=vocal_assistant)
 
+from google.cloud import texttospeech
+
 if __name__ == "__main__":
     main()
+
+    
+    

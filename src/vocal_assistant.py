@@ -1,20 +1,13 @@
 import speech_recognition as sr
 import os
-from langchain import OpenAI, ConversationChain, LLMChain, PromptTemplate
-from langchain.memory import ConversationBufferWindowMemory
+from langchain import OpenAI, LLMChain, PromptTemplate
 from langchain.tools import Tool
 from langchain.utilities import GoogleSearchAPIWrapper
 from playsound import playsound
-import site
-from TTS.utils.manage import ModelManager
-from TTS.utils.synthesizer import Synthesizer
+from google.cloud import texttospeech
+from pydub import AudioSegment
+from pydub.playback import play
 
-# Get coqui TTS
-location = site.getsitepackages()[0]
-path = location+"/TTS/.models.json"
-model_manager = ModelManager(path)
-model_path, config_path, model_item = model_manager.download_model("tts_models/en/ljspeech/tacotron2-DDC")
-voc_path, voc_config_path, _ = model_manager.download_model(model_item["default_vocoder"])
 
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
@@ -30,14 +23,18 @@ class VocalAssistant:
 
     def __init__(self):
         self.OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-        self.template = """Assistant is a powerful tool that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether you need help with a specific question or just want to have a conversation about a particular topic, Assistant is here to assist.
-        
-        Assistant is aware that human input is being transcribed from audio and as such there may be some errors in the transcription. It will attempt to account for some words being swapped with similar-sounding words or phrases. Assistant will also keep responses concise, because human attention spans are more limited over the audio channel since it takes time to listen to a response.
-        
-        Human: {input}
+        self.template = """
+        L'Assistant est un outil puissant qui peut vous aider dans une grande variété de tâches et vous fournir des informations précieuses sur un large éventail de sujets. Que vous ayez besoin d'aide pour une question spécifique ou que vous souhaitiez simplement avoir une conversation sur un sujet particulier, l'Assistant est là pour vous aider.
 
-        Information from internet, you can use it if you think it's necessary: {internet_search}
-        Assistant:"""
+        L'Assistant est conscient que l'entrée humaine est transcrite à partir de l'audio et, en conséquence, il peut y avoir quelques erreurs dans la transcription. Il tentera de tenir compte du fait que certains mots peuvent être échangés avec des mots ou des phrases qui se ressemblent. L'Assistant répondra également de manière concise, car l'attention humaine est plus limitée lorsqu'il s'agit d'audio, car il faut du temps pour écouter une réponse.
+
+        Humain : {input}
+
+        Informations provenant d'Internet, que vous pouvez utiliser si vous estimez que c'est nécessaire : {internet_search}
+        
+        L'assistant doit toujours repondre en francais.
+        Assistant:
+        """
 
     def listen(self) -> str:
         """
@@ -50,10 +47,12 @@ class VocalAssistant:
         with sr.Microphone() as source:
             r.adjust_for_ambient_noise(source, duration=5)
             print("TING TING")
-            playsound('tell_me.wav')
+            output_file = "dis_moi.wav"
+            audio = AudioSegment.from_wav(output_file)
+            play(audio)
             audio = r.listen(source, timeout=5, phrase_time_limit=30)
         try:
-            return r.recognize_google(audio)
+            return r.recognize_google(audio, language='fr-FR')
         except sr.UnknownValueError:
             print("Could not understand audio")
         except sr.RequestError as e:
@@ -97,12 +96,31 @@ class VocalAssistant:
         Args:
             audio (str): Audio to be converted to speech.
         """
-        syn = Synthesizer(
-            tts_checkpoint=model_path,
-            tts_config_path=config_path,
-            vocoder_checkpoint=voc_path,
-            vocoder_config=voc_config_path
+        # Create a Text-to-Speech client
+        client = texttospeech.TextToSpeechClient()
+
+
+        # Specify the voice to use
+        voice = texttospeech.VoiceSelectionParams(
+            language_code="fr-FR",
+            name="fr-FR-Standard-A",
         )
-        outputs = syn.tts(audio)
-        syn.save_wav(outputs, "audio-1.wav")
-        playsound('audio-1.wav')
+
+        # Specify the audio configuration
+        audio_config = texttospeech.AudioConfig(
+            audio_encoding=texttospeech.AudioEncoding.LINEAR16
+        )
+
+        # Generate the synthesis request
+        synthesis_input = texttospeech.SynthesisInput(text=audio)
+        response = client.synthesize_speech(
+            input=synthesis_input, voice=voice, audio_config=audio_config
+        )
+
+        # Save the audio to a file
+        output_file = "output.wav"
+        with open(output_file, "wb") as out_file:
+            out_file.write(response.audio_content)
+
+        audio = AudioSegment.from_wav(output_file)
+        play(audio)
